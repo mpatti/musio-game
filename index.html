@@ -23,7 +23,7 @@
         .clef { position: absolute; left: 8px; font-size: 70px; color: var(--gold); font-family: serif; top: 50%; transform: translateY(-55%); line-height: 1; }
         .chord-area { position: absolute; left: 70px; right: 20px; top: 0; bottom: 0; display: flex; justify-content: center; align-items: center; }
         .chord-col { position: relative; width: 30px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .whole-note { font-size: 38px; color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); line-height: 1; position: absolute; }
+        .notehead { position: absolute; width: 18px; height: 12px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 8px rgba(212, 175, 55, 0.6); }
         .ledger { position: absolute; width: 26px; height: 1px; background: var(--cream); opacity: 0.7; left: 50%; transform: translateX(-50%); }
         .accidental { position: absolute; font-size: 28px; color: var(--gold); left: -18px; font-weight: bold; }
         .options { display: grid; gap: 10px; margin-top: 15px; }
@@ -101,7 +101,7 @@
             return MIDDLE_Y - ((octave - 4) * 7 + offset) * (LINE_SPACE / 2);
         }
         
-        function hasAccidental(chordName) {
+        function hasFlat(chordName) {
             return chordName.includes('b') || chordName.includes('Bb');
         }
         
@@ -111,20 +111,17 @@
             const area = document.getElementById('chord-area');
             area.innerHTML = '';
             
-            // Sort notes low to high
             const notes = [...chord.notes].sort((a,b) => a - b);
             
-            // Create SINGLE column for all notes
             const col = document.createElement('div');
             col.className = 'chord-col';
             
-            // Check if this chord has a flat
-            const hasFlat = hasAccidental(chord.name);
+            const hasFlatNote = hasFlat(chord.name);
             
             notes.forEach(midi => {
                 const y = midiToY(midi);
                 
-                // Ledger lines below staff
+                // Ledger lines below
                 if (y < 35) {
                     for (let ly = 30; ly >= y - 5; ly -= 10) {
                         const ledger = document.createElement('div');
@@ -133,7 +130,7 @@
                         col.appendChild(ledger);
                     }
                 }
-                // Ledger lines above staff
+                // Ledger lines above
                 if (y > 115) {
                     for (let ly = 110; ly <= y + 5; ly += 10) {
                         const ledger = document.createElement('div');
@@ -143,18 +140,18 @@
                     }
                 }
                 
-                // Whole note
+                // Notehead as CSS ellipse
                 const noteEl = document.createElement('div');
-                noteEl.className = 'whole-note';
-                noteEl.textContent = '𝅝';
-                noteEl.style.top = (y - 19) + 'px';
+                noteEl.className = 'notehead';
+                noteEl.style.top = (y - 6) + 'px';
+                noteEl.style.left = '6px';
                 col.appendChild(noteEl);
                 
-                // Add flat accidental to lowest note if chord has flat
-                if (hasFlat && midi === notes[0]) {
+                // Flat accidental on lowest note
+                if (hasFlatNote && midi === notes[0]) {
                     const acc = document.createElement('div');
                     acc.className = 'accidental';
-                    acc.textContent = '♭';
+                    acc.textContent = 'b';
                     acc.style.top = (y - 14) + 'px';
                     col.appendChild(acc);
                 }
