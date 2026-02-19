@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Jazz Chord Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f4d03f;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --cream: #faf8f0;
+            --red: #c0392b;
+            --green: #27ae60;
+        }
+        
+        body {
+            background: var(--darker);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: var(--cream);
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--gold-light);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .staff-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .staff {
+            width: 100%;
+            height: 200px;
+            position: relative;
+        }
+        
+        .staff-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--cream);
+        }
+        
+        .note {
+            position: absolute;
+            width: 36px;
+            height: 28px;
+            font-size: 28px;
+            color: var(--gold);
+            text-align: center;
+            line-height: 1;
+            transform: translateX(-50%);
+            filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));
+        }
+        
+        .note-head {
+            display: inline-block;
+            font-size: 32px;
+            transform: rotate(-10deg);
+        }
+        
+        .clef {
+            position: absolute;
+            left: 10px;
+            font-size: 80px;
+            color: var(--gold);
+            font-family: serif;
+            line-height: 1;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .options {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .option {
+            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%);
+            border: 2px solid #3a3a5a;
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 1.2rem;
+            color: var(--cream);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .option:active {
+            transform: scale(0.98);
+        }
+        
+        .option.correct {
+            background: linear-gradient(135deg, #1e5631 0%, #27ae60 100%);
+            border-color: var(--green);
+            animation: pulse-correct 0.5s;
+        }
+        
+        .option.wrong {
+            background: linear-gradient(135deg, #6c1e1e 0%, #c0392b 100%);
+            border-color: var(--red);
+            animation: shake 0.5s;
+        }
+        
+        .option:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        @keyframes pulse-correct {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        .message {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.3rem;
+            min-height: 60px;
+        }
+        
+        .win-screen, .lose-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 26, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .win-screen.show, .lose-screen.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .win-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+        
+        .lose-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: var(--red);
+            margin-bottom: 20px;
+        }
+        
+        .win-screen p, .lose-screen p {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--darker);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .feedback.show {
+            animation: feedback-pop 0.8s forwards;
+        }
+        
+        @keyframes feedback-pop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-50px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎷 Jazz Chord Quiz</h1>
+            <p class="subtitle">Name that chord!</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Streak</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="best">0</div>
+                <div class="stat-label">Best</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+        
+        <div class="staff-container">
+            <div class="staff" id="staff">
+                <div class="staff-lines" id="staff-lines"></div>
+                <div class="clef">𝄞</div>
+                <div class="notes" id="notes"></div>
+            </div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="message" id="message">Select the correct chord name!</div>
+        
+        <div class="options" id="options"></div>
+    </div>
+    
+    <div class="win-screen" id="win-screen">
+        <h2>🎉 You Win!</h2>
+        <p>10 perfect in a row!</p>
+        <button class="btn" onclick="playAgain()">Play Again</button>
+    </div>
+    
+    <div class="lose-screen" id="lose-screen">
+        <h2>💔 Wrong!</h2>
+        <p>Streak broken!</p>
+        <button class="btn" onclick="tryAgain()">Try Again</button>
+    </div>
+
+    <script>
+        // Jazz chord definitions with note offsets
+        const JAZZ_CHORDS = [
+            // Triads (3 notes)
+            { name: "Cmaj7", notes: [0, 4, 7, 11], key: "C" },
+            { name: "Dm7", notes: [0, 3, 7, 10], key: "D" },
+            { name: "Em7", notes: [0, 3, 7, 10], key: "E" },
+            { name: "Fmaj7", notes: [0, 4, 7, 11], key: "F" },
+            { name: "G7", notes: [0, 4, 7, 10], key: "G" },
+            { name: "Am7", notes: [0, 3, 7, 10], key: "A" },
+            { name: "Bm7b5", notes: [0, 3, 6, 10], key: "B" },
+            
+            // 7th chords
+            { name: "C7", notes: [0, 4, 7, 10], key: "C" },
+            { name: "Dm7", notes: [0, 3, 7, 10], key: "D" },
+            { name: "E7", notes: [0, 4, 7, 10], key: "E" },
+            { name: "F7", notes: [0, 4, 7, 10], key: "F" },
+            { name: "G7", notes: [0, 4, 7, 10], key: "G" },
+            { name: "A7", notes: [0, 4, 7, 10], key: "A" },
+            
+            // Minor 7ths
+            { name: "Cm7", notes: [0, 3, 7, 10], key: "C" },
+            { name: "Dm7", notes: [0, 3, 7, 10], key: "D" },
+            { name: "Ebm7", notes: [0, 3, 7, 10], key: "Eb" },
+            { name: "Fm7", notes: [0, 3, 7, 10], key: "F" },
+            { name: "Gm7", notes: [0, 3, 7, 10], key: "G" },
+            { name: "Abm7", notes: [0, 3, 7, 10], key: "Ab" },
+            { name: "Bbm7", notes: [0, 3, 7, 10], key: "Bb" },
+            
+            // Major 7ths
+            { name: "Cmaj7", notes: [0, 4, 7, 11], key: "C" },
+            { name: "Dmaj7", notes: [0, 4, 7, 11], key: "D" },
+            { name: "Ebmaj7", notes: [0, 4, 7, 11], key: "Eb" },
+            { name: "Fmaj7", notes: [0, 4, 7, 11], key: "F" },
+            { name: "Gmaj7", notes: [0, 4, 7, 11], key: "G" },
+            { name: "Abmaj7", notes: [0, 4, 7, 11], key: "Ab" },
+            { name: "Bbmaj7", notes: [0, 4, 7, 11], key: "Bb" },
+            
+            // Dominant 7ths
+            { name: "C7", notes: [0, 4, 7, 10], key: "C" },
+            { name: "D7", notes: [0, 4, 7, 10], key: "D" },
+            { name: "Eb7", notes: [0, 4, 7, 10], key: "Eb" },
+            { name: "F7", notes: [0, 4, 7, 10], key: "F" },
+            { name: "G7", notes: [0, 4, 7, 10], key: "G" },
+            { name: "Ab7", notes: [0, 4, 7, 10], key: "Ab" },
+            { name: "Bb7", notes: [0, 4, 7, 10], key: "Bb" },
+            
+            // Half diminished
+            { name: "Cm7b5", notes: [0, 3, 6, 10], key: "C" },
+            { name: "Dm7b5", notes: [0, 3, 6, 10], key: "D" },
+            { name: "Ebm7b5", notes: [0, 3, 6, 10], key: "Eb" },
+            { name: "Fm7b5", notes: [0, 3, 6, 10], key: "F" },
+            { name: "Gm7b5", notes: [0, 3, 6, 10], key: "G" },
+            { name: "Abm7b5", notes: [0, 3, 6, 10], key: "Ab" },
+            { name: "Bbm7b5", notes: [0, 3, 6, 10], key: "Bb" },
+            
+            // Extended chords (4+ notes)
+            { name: "C9", notes: [0, 4, 7, 10, 14], key: "C" },
+            { name: "Dm9", notes: [0, 3, 7, 10, 14], key: "D" },
+            { name: "Ebm9", notes: [0, 3, 7, 10, 14], key: "Eb" },
+            { name: "Fmaj9", notes: [0, 4, 7, 11, 14], key: "F" },
+            { name: "G9", notes: [0, 4, 7, 10, 14], key: "G" },
+            { name: "Am9", notes: [0, 3, 7, 10, 14], key: "A" },
+            
+            // Altered dominants
+            { name: "C7#11", notes: [0, 4, 7, 10, 18], key: "C" },
+            { name: "D7b9", notes: [0, 4, 7, 10, 13], key: "D" },
+            { name: "E7#9", notes: [0, 4, 7, 10, 16], key: "E" },
+            { name: "G7#5", notes: [0, 4, 8, 10], key: "G" },
+            { name: "G7b5", notes: [0, 4, 6, 10], key: "G" },
+        ];
+        
+        // Note names
+        const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const NOTE_NAMES_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+        
+        // Staff configuration
+        const STAFF_TOP = 30;
+        const LINE_SPACING = 18;
+        
+        let streak = 0;
+        let best = 0;
+        let currentChord = null;
+        let gameActive = true;
+        
+        // Draw staff lines
+        function drawStaff() {
+            const container = document.getElementById('staff-lines');
+            container.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const line = document.createElement('div');
+                line.className = 'line';
+                line.style.top = (STAFF_TOP + i * LINE_SPACING) + 'px';
+                container.appendChild(line);
+            }
+        }
+        
+        // Get note position on staff (middle C = 0)
+        function getNotePosition(semitone) {
+            // Map semitones to staff positions
+            // C4 (middle C) is below the staff
+            // Staff lines: E4, G4, B4, D5, F5
+            const noteMap = {
+                'C': -1, 'C#': -1, 'D': 0, 'D#': 0, 'E': 1, 'F': 2,
+                'F#': 2, 'G': 3, 'G#': 3, 'A': 4, 'A#': 4, 'B': 5
+            };
+            
+            // Get octave and note within octave
+            const octave = Math.floor(semitone / 12);
+            const note = semitone % 12;
+            
+            // Position relative to middle C (C4)
+            const c4Position = -1; // C4 is one line below the staff
+            const position = (octave - 4) * 7 + noteMap[NOTE_NAMES[note]];
+            
+            return position;
+        }
+        
+        // Get accidental symbol
+        function getAccidental(noteIndex) {
+            const noteName = NOTE_NAMES[noteIndex % 12];
+            if (noteName.includes('#') || noteName.includes('b')) {
+                return noteName.includes('#') ? '♯' : '♭';
+            }
+            return '';
+        }
+        
+        // Display chord on staff
+        function displayChord(chord) {
+            const container = document.getElementById('notes');
+            container.innerHTML = '';
+            
+            // Calculate base note to center the chord
+            const minNote = Math.min(...chord.notes);
+            const maxNote = Math.max(...chord.notes);
+            const range = maxNote - minNote;
+            
+            // Space notes horizontally
+            const startX = range > 8 ? 100 : range > 4 ? 120 : 140;
+            const spacing = Math.max(30, Math.min(50, 300 / chord.notes.length));
+            
+            chord.notes.forEach((note, i) => {
+                const pos = getNotePosition(note);
+                const y = STAFF_TOP + 4 * LINE_SPACING - pos * (LINE_SPACING / 2);
+                
+                const noteEl = document.createElement('div');
+                noteEl.className = 'note';
+                noteEl.style.left = (startX + i * spacing) + 'px';
+                noteEl.style.top = y + 'px';
+                
+                const noteIndex = note % 12;
+                const accidental = getAccidental(noteIndex);
+                const noteLetter = NOTE_NAMES_FLAT[noteIndex].replace('#', '').replace('b', '');
+                
+                noteEl.innerHTML = `<span class="note-head">${noteLetter}</span>${accidental}`;
+                
+                // Add ledger lines if needed
+                if (pos < 0) {
+                    for (let l = pos; l < 0; l++) {
+                        const ledger = document.createElement('div');
+                        ledger.style.cssText = `position:absolute; left:${startX + i * spacing - 18}px; top:${y + 14}px; width:36px; height:2px; background:var(--cream);`;
+                        container.appendChild(ledger);
+                    }
+                } else if (pos > 8) {
+                    for (let l = 8; l < pos; l++) {
+                        const ledger = document.createElement('div');
+                        ledger.style.cssText = `position:absolute; left:${startX + i * spacing - 18}px; top:${STAFF_TOP + (4 - l/2) * LINE_SPACING + 14}px; width:36px; height:2px; background:var(--cream);`;
+                        container.appendChild(ledger);
+                    }
+                }
+                
+                container.appendChild(noteEl);
+            });
+        }
+        
+        // Generate options
+        function generateOptions(correct) {
+            const options = [correct];
+            const others = JAZZ_CHORDS.filter(c => c.name !== correct.name);
+            
+            // Shuffle and pick 2 wrong answers
+            for (let i = others.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [others[i], others[j]] = [others[j], others[i]];
+            }
+            
+            options.push(others[0], others[1]);
+            
+            // Shuffle options
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+            
+            return options;
+        }
+        
+        // Display options
+        function displayOptions(options) {
+            const container = document.getElementById('options');
+            container.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option';
+                btn.textContent = opt.name;
+                btn.onclick = () => checkAnswer(opt);
+                container.appendChild(btn);
+            });
+        }
+        
+        // Check answer
+        function checkAnswer(selected) {
+            if (!gameActive) return;
+            
+            const options = document.querySelectorAll('.option');
+            const correct = selected.name === currentChord.name;
+            
+            options.forEach(opt => {
+                opt.disabled = true;
+                if (opt.textContent === currentChord.name) {
+                    opt.classList.add('correct');
+                } else if (opt.textContent === selected.name && !correct) {
+                    opt.classList.add('wrong');
+                }
+            });
+            
+            const feedback = document.getElementById('feedback');
+            if (correct) {
+                streak++;
+                if (streak > best) best = streak;
+                feedback.textContent = '✓';
+                feedback.style.color = 'var(--green)';
+                document.getElementById('message').textContent = 'Correct! Keep going!';
+                
+                if (streak >= 10) {
+                    setTimeout(showWin, 800);
+                    return;
+                }
+            } else {
+                streak = 0;
+                feedback.textContent = '✗';
+                feedback.style.color = 'var(--red)';
+                document.getElementById('message').textContent = `That was ${currentChord.name}!`;
+                setTimeout(showLose, 800);
+                return;
+            }
+            
+            feedback.classList.add('show');
+            setTimeout(() => feedback.classList.remove('show'), 800);
+            
+            updateUI();
+            setTimeout(newChord, 1000);
+        }
+        
+        // New chord
+        function newChord() {
+            const chord = JAZZ_CHORDS[Math.floor(Math.random() * JAZZ_CHORDS.length)];
+            currentChord = chord;
+            displayChord(chord);
+            displayOptions(generateOptions(chord));
+        }
+        
+        // Update UI
+        function updateUI() {
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('best').textContent = best;
+            document.getElementById('progress').style.width = (streak * 10) + '%';
+        }
+        
+        // Show win
+        function showWin() {
+            gameActive = false;
+            document.getElementById('win-screen').classList.add('show');
+        }
+        
+        // Show lose
+        function showLose() {
+            gameActive = false;
+            document.getElementById('lose-screen').classList.add('show');
+        }
+        
+        // Play again
+        function playAgain() {
+            document.getElementById('win-screen').classList.remove('show');
+            streak = 0;
+            gameActive = true;
+            updateUI();
+            newChord();
+        }
+        
+        // Try again
+        function tryAgain() {
+            document.getElementById('lose-screen').classList.remove('show');
+            streak = 0;
+            gameActive = true;
+            updateUI();
+            newChord();
+        }
+        
+        // Initialize
+        drawStaff();
+        newChord();
+    </script>
+</body>
+</html>
