@@ -94,18 +94,35 @@
         
         // Staff lines at y=50,70,90,110,130 (bottom to top)
         // Bottom line (E4) = 130
-        // G4 = 110
-        // B4 = 90
-        // D5 = 70
-        // F5 = 50
+        // Second line (G4) = 110  
+        // Third line (B4) = 90
         
-        // Each line/space = 10 units, so each half step = 5 units
-        // E4(64) = 130, F4(65) = 125, F#4(126) = 120, G4(67) = 115, G#4(68) = 110...
+        // Each line/space = 10 units
+        // Natural notes: C=140(ledger), D=135, E=130(line), F=125, G=120, A=115, B=110, C=105, D=100, E=95, F=90
         
         function midiToY(midi) {
-            // E4 = 130 (bottom line)
-            // Each half step = 5 units up
-            return 130 - (midi - 64) * 5;
+            // Proper treble clef positions (bottom line E=130):
+            const positions = {
+                60: 150, // C4 - ledger below
+                61: 147, // C#4
+                62: 145, // D4
+                63: 142, // D#4
+                64: 130, // E4 - bottom line
+                65: 125, // F4
+                66: 122, // F#4
+                67: 110, // G4 - second line
+                68: 105, // G#4
+                69: 100, // A4
+                70: 95,  // Bb4
+                71: 90,  // B4 - middle line
+                72: 85,  // C5
+                73: 82,  // C#5
+                74: 70,  // D5
+                75: 67,  // D#5
+                76: 60,  // E5
+                77: 50,  // F5 - top line
+            };
+            return positions[midi] || 90;
         }
         
         function getNoteName(midi) {
@@ -136,7 +153,7 @@
                 
                 // Draw ledger lines if needed
                 if (y > 130) {
-                    // Below staff
+                    // Below staff - ledger lines at 140, 150...
                     for (let ly = 140; ly <= y + 5; ly += 10) {
                         const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                         ledger.setAttribute('x1', x - 12);
@@ -149,7 +166,18 @@
                     }
                 }
                 if (y < 50) {
-                    // Above staff
+                    // Above staff - ledger lines at 40, 30, 20...
+                    for (let ly = 40; ly >= y - 5; ly -= 10) {
+                        const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        ledger.setAttribute('x1', x - 12);
+                        ledger.setAttribute('x2', x + 12);
+                        ledger.setAttribute('y1', ly);
+                        ledger.setAttribute('y2', ly);
+                        ledger.setAttribute('stroke', '#faf8f0');
+                        ledger.setAttribute('stroke-width', '1.5');
+                        notesGroup.appendChild(ledger);
+                    }
+                }
                     for (let ly = 40; ly >= y - 5; ly -= 10) {
                         const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                         ledger.setAttribute('x1', x - 12);
