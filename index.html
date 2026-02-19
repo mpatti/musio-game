@@ -19,13 +19,13 @@
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
         .staff-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
         .staff { width: 100%; height: 180px; position: relative; background: #0a0a14; border-radius: 8px; border: 1px solid #333; }
-        .staff-line { position: absolute; width: 92%; left: 4%; height: 1px; background: var(--cream); opacity: 0.7; }
-        .clef { position: absolute; left: 8px; font-size: 80px; color: var(--gold); font-family: serif; top: 50%; transform: translateY(-55%); line-height: 1; }
-        .chord-area { position: absolute; left: 70px; right: 20px; top: 0; bottom: 0; display: flex; justify-content: center; align-items: center; }
-        .chord-col { position: relative; width: 30px; height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .notehead { position: absolute; width: 16px; height: 10px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 6px rgba(212, 175, 55, 0.5); }
-        .ledger { position: absolute; width: 24px; height: 1px; background: var(--cream); opacity: 0.7; left: 50%; transform: translateX(-50%); }
-        .accidental { position: absolute; font-size: 24px; color: var(--gold); left: -16px; font-weight: bold; }
+        .staff-line { position: absolute; width: 92%; left: 4%; height: 2px; background: var(--cream); opacity: 0.9; }
+        .clef { position: absolute; left: 2px; font-size: 140px; color: var(--gold); font-family: serif; top: 50%; transform: translateY(-50%); line-height: 1; z-index: 1; }
+        .chord-area { position: absolute; left: 75px; right: 15px; top: 0; bottom: 0; display: flex; justify-content: center; align-items: center; }
+        .chord-col { position: relative; width: 30px; height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .notehead { position: absolute; width: 18px; height: 12px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 8px rgba(212, 175, 55, 0.6); }
+        .ledger { position: absolute; width: 28px; height: 2px; background: var(--cream); opacity: 0.8; left: 50%; transform: translateX(-50%); }
+        .accidental { position: absolute; font-size: 26px; color: var(--gold); left: -20px; font-weight: bold; }
         .options { display: grid; gap: 10px; margin-top: 15px; }
         .option { background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%); border: 2px solid #3a3a5a; border-radius: 10px; padding: 14px; font-size: 1.1rem; color: var(--cream); cursor: pointer; font-weight: 600; }
         .option.correct { background: linear-gradient(135deg, #1e5631, #27ae60); border-color: var(--green); }
@@ -93,39 +93,79 @@
             { name: "Bb7", notes: [70, 73, 77, 80] },
         ];
         
-        // Staff: lines at 30, 50, 70, 90, 110. Middle line (B4) = 70
-        // Each line/space = 10px
-        const MIDDLE_Y = 70;
+        // Staff lines at: 30, 50, 70, 90, 110 (from top to bottom)
+        // Middle line = 70 (B4)
+        // Bottom line = 110 (E4)
+        // Ledger line for Middle C = 125
         
         function midiToY(midi) {
-            // MIDI 60 = C4 (Middle C) = below staff
-            // Staff positions: B4=70, A4=75, G4=80, F4=85, E4=90 (line), D4=95, C4=100 (ledger)
-            // Actually: middle line B4=70. Each step = 5px (half line spacing)
-            const notePositions = {
-                60: 100, // C4
-                61: 97.5, // C#4
-                62: 95, // D4
-                63: 92.5, // D#4
-                64: 90, // E4 (line)
-                65: 87.5, // F4
-                66: 85, // F#4
-                67: 82.5, // G4
-                68: 80, // G#4
-                69: 77.5, // A4
-                70: 75, // A#4/Bb4
-                71: 72.5, // B4
-                72: 70, // C5 (middle line)
-                73: 67.5, // C#5
-                74: 65, // D5
-                75: 62.5, // D#5
-                76: 60, // E5 (line)
-                77: 57.5, // F5
-                78: 55, // F#5
-                79: 52.5, // G5
-                80: 50, // G#5/A5
-                81: 47.5 // A#5/Bb5
+            // Correct positions based on staff lines
+            const staffPositions = {
+                // Octave 4 (Middle C octave)
+                60: 125, // C4 - ledger line below
+                61: 122.5, // C#4
+                62: 120, // D4
+                63: 117.5, // D#4
+                64: 115, // E4 - bottom line (110) + half step = 115 center
+                65: 112.5, // F4
+                66: 110, // F#4
+                67: 107.5, // G4
+                68: 105, // G#4
+                69: 102.5, // A4
+                70: 100, // Bb4
+                71: 97.5, // B4 - middle line (70) but wait...
+                
+                // Let me recalculate. Staff lines:
+                // Top line: 30
+                // Line 4: 50  
+                // Middle line: 70
+                // Line 2: 90
+                // Bottom line: 110
+                // Ledger below: 125
             };
-            return notePositions[midi] || 70;
+            
+            // Each staff position (line or space) = 10px
+            // Bottom line (E4) = 110
+            // Space below bottom line = 115
+            // Ledger line (C4) = 120
+            // Space below ledger = 125
+            
+            // So working from bottom:
+            // E4 (64) = line at 110, note centered at 110
+            // D4 (62) = space at 105
+            // C4 (60) = ledger line at 120
+            // etc.
+            
+            // Actually - in standard notation, the line IS where the notehead center goes
+            // Bottom line (E4): 110
+            // Space below (D4): 105  
+            // Ledger (C4): 120
+            
+            const positions = {
+                60: 120, // C4 - ledger line
+                61: 117.5,
+                62: 115, // D4
+                63: 112.5,
+                64: 110, // E4 - bottom line
+                65: 107.5,
+                66: 105, // F4
+                67: 102.5,
+                68: 100, // G4
+                69: 97.5,
+                70: 95, // A4
+                71: 92.5,
+                72: 90, // B4 - middle line
+                73: 87.5,
+                74: 85, // C5
+                75: 82.5,
+                76: 80, // D5
+                77: 77.5,
+                78: 75, // E5
+                79: 72.5,
+                80: 70, // F5
+                81: 67.5,
+            };
+            return positions[midi] || 90;
         }
         
         function hasFlat(chordName) {
@@ -148,21 +188,25 @@
             notes.forEach(midi => {
                 const y = midiToY(midi);
                 
-                // Ledger lines below staff (below y=110)
-                if (y > 110) {
-                    for (let ly = 110; ly <= y + 5; ly += 10) {
+                // Ledger lines - draw from staff boundary inward
+                if (y >= 110) {
+                    // Below staff - draw lines going down from 110
+                    const numLines = Math.ceil((y - 110) / 10) + 1;
+                    for (let i = 0; i < numLines; i++) {
                         const ledger = document.createElement('div');
                         ledger.className = 'ledger';
-                        ledger.style.top = (ly - 3) + 'px';
+                        ledger.style.top = (110 + i * 10 - 1) + 'px';
                         col.appendChild(ledger);
                     }
                 }
-                // Ledger lines above staff (above y=30)
-                if (y < 30) {
-                    for (let ly = 30; ly >= y - 5; ly -= 10) {
+                
+                if (y <= 30) {
+                    // Above staff - draw lines going up from 30
+                    const numLines = Math.ceil((30 - y) / 10) + 1;
+                    for (let i = 0; i < numLines; i++) {
                         const ledger = document.createElement('div');
                         ledger.className = 'ledger';
-                        ledger.style.top = (ly - 3) + 'px';
+                        ledger.style.top = (30 - i * 10 - 1) + 'px';
                         col.appendChild(ledger);
                     }
                 }
@@ -170,8 +214,8 @@
                 // Notehead
                 const noteEl = document.createElement('div');
                 noteEl.className = 'notehead';
-                noteEl.style.top = (y - 5) + 'px';
-                noteEl.style.left = '7px';
+                noteEl.style.top = (y - 6) + 'px';
+                noteEl.style.left = '6px';
                 col.appendChild(noteEl);
                 
                 // Flat accidental
@@ -179,7 +223,7 @@
                     const acc = document.createElement('div');
                     acc.className = 'accidental';
                     acc.textContent = 'b';
-                    acc.style.top = (y - 12) + 'px';
+                    acc.style.top = (y - 13) + 'px';
                     col.appendChild(acc);
                 }
             });
