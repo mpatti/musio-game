@@ -6,235 +6,51 @@
     <title>Jazz Chord Quiz</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap');
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --gold: #d4af37;
-            --gold-light: #f4d03f;
-            --dark: #1a1a2e;
-            --darker: #0f0f1a;
-            --cream: #faf8f0;
-            --red: #c0392b;
-            --green: #27ae60;
-        }
-        
-        body {
-            background: var(--darker);
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
-            color: var(--cream);
-            overflow: hidden;
-            touch-action: manipulation;
-        }
-        
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        header {
-            text-align: center;
-            padding: 15px 0;
-        }
-        
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            color: var(--gold);
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 10px 0;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--gold-light);
-        }
-        
-        .stat-label {
-            font-size: 0.7rem;
-            color: #666;
-            text-transform: uppercase;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #333;
-            border-radius: 3px;
-            margin: 10px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-        
-        .staff-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-        }
-        
-        .staff {
-            width: 100%;
-            height: 160px;
-            position: relative;
-            background: #0a0a14;
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
-        
-        .staff-line {
-            position: absolute;
-            width: 92%;
-            left: 4%;
-            height: 1px;
-            background: var(--cream);
-            opacity: 0.7;
-        }
-        
-        .clef {
-            position: absolute;
-            left: 8px;
-            font-size: 70px;
-            color: var(--gold);
-            font-family: serif;
-            top: 50%;
-            transform: translateY(-55%);
-            line-height: 1;
-        }
-        
-        .notes-area {
-            position: absolute;
-            left: 60px;
-            right: 10px;
-            top: 0;
-            bottom: 0;
-        }
-        
-        .note {
-            position: absolute;
-            font-size: 32px;
-            color: var(--gold);
-            text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
-            transform: translateX(-50%);
-        }
-        
-        .ledger {
-            position: absolute;
-            width: 24px;
-            height: 1px;
-            background: var(--cream);
-            opacity: 0.7;
-            transform: translateX(-50%);
-        }
-        
-        .options {
-            display: grid;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .option {
-            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%);
-            border: 2px solid #3a3a5a;
-            border-radius: 10px;
-            padding: 14px;
-            font-size: 1.1rem;
-            color: var(--cream);
-            cursor: pointer;
-            font-weight: 600;
-        }
-        
+        :root { --gold: #d4af37; --gold-light: #f4d03f; --darker: #0f0f1a; --cream: #faf8f0; --red: #c0392b; --green: #27ae60; }
+        body { background: var(--darker); min-height: 100vh; font-family: 'Inter', sans-serif; color: var(--cream); overflow: hidden; touch-action: manipulation; }
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+        header { text-align: center; padding: 15px 0; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); }
+        .stats { display: flex; justify-content: center; gap: 30px; margin: 10px 0; }
+        .stat-value { font-size: 1.5rem; font-weight: 600; color: var(--gold-light); }
+        .stat-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
+        .progress-bar { width: 100%; height: 6px; background: #333; border-radius: 3px; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
+        .staff-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
+        .staff { width: 100%; height: 160px; position: relative; background: #0a0a14; border-radius: 8px; border: 1px solid #333; }
+        .staff-line { position: absolute; width: 92%; left: 4%; height: 1px; background: var(--cream); opacity: 0.7; }
+        .clef { position: absolute; left: 8px; font-size: 70px; color: var(--gold); font-family: serif; top: 50%; transform: translateY(-55%); line-height: 1; }
+        .chord-area { position: absolute; left: 70px; right: 20px; top: 0; bottom: 0; display: flex; justify-content: center; align-items: center; }
+        .chord { display: flex; align-items: center; gap: 8px; }
+        .note-col { position: relative; width: 20px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .whole-note { font-size: 40px; color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); line-height: 1; position: absolute; }
+        .ledger { position: absolute; width: 26px; height: 1px; background: var(--cream); opacity: 0.7; left: 50%; transform: translateX(-50%); }
+        .options { display: grid; gap: 10px; margin-top: 15px; }
+        .option { background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%); border: 2px solid #3a3a5a; border-radius: 10px; padding: 14px; font-size: 1.1rem; color: var(--cream); cursor: pointer; font-weight: 600; }
         .option.correct { background: linear-gradient(135deg, #1e5631, #27ae60); border-color: var(--green); }
         .option.wrong { background: linear-gradient(135deg, #6c1e1e, #c0392b); border-color: var(--red); }
         .option:disabled { opacity: 0.6; }
-        
-        .message {
-            text-align: center;
-            padding: 10px;
-            font-size: 1rem;
-        }
-        
-        .feedback {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 4rem;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 100;
-        }
-        
+        .message { text-align: center; padding: 10px; font-size: 1rem; }
+        .feedback { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; opacity: 0; pointer-events: none; z-index: 100; }
         .feedback.show { animation: pop 0.6s forwards; }
-        
-        @keyframes pop {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            40% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
-        }
-        
-        .win-screen, .lose-screen {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 15, 26, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        
+        @keyframes pop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 40% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
+        .win-screen, .lose-screen { position: fixed; inset: 0; background: rgba(15, 15, 26, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .win-screen.show, .lose-screen.show { opacity: 1; pointer-events: all; }
         .win-screen h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--gold); }
         .lose-screen h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--red); }
         .win-screen p, .lose-screen p { color: #888; margin: 15px 0 25px; }
-        
-        .btn {
-            background: linear-gradient(135deg, var(--gold), var(--gold-light));
-            border: none;
-            padding: 14px 35px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--darker);
-            border-radius: 25px;
-            cursor: pointer;
-        }
+        .btn { background: linear-gradient(135deg, var(--gold), var(--gold-light)); border: none; padding: 14px 35px; font-size: 1rem; font-weight: 600; color: var(--darker); border-radius: 25px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🎷 Jazz Chord Quiz</h1>
-        </header>
-        
+        <header><h1>🎷 Jazz Chord Quiz</h1></header>
         <div class="stats">
             <div class="stat"><div class="stat-value" id="streak">0</div><div class="stat-label">Streak</div></div>
             <div class="stat"><div class="stat-value" id="best">0</div><div class="stat-label">Best</div></div>
         </div>
-        
         <div class="progress-bar"><div class="progress-fill" id="progress" style="width: 0%"></div></div>
-        
         <div class="staff-container">
             <div class="staff" id="staff">
                 <div class="staff-line" style="top: 30px"></div>
@@ -243,124 +59,64 @@
                 <div class="staff-line" style="top: 90px"></div>
                 <div class="staff-line" style="top: 110px"></div>
                 <div class="clef">𝄞</div>
-                <div class="notes-area" id="notes-area"></div>
+                <div class="chord-area" id="chord-area"></div>
             </div>
         </div>
-        
         <div class="message" id="message">Name the chord!</div>
-        
         <div class="options" id="options"></div>
     </div>
-    
     <div class="feedback" id="feedback"></div>
-    
     <div class="win-screen" id="win-screen">
         <h2>🎉 You Win!</h2>
         <p>10 in a row!</p>
         <button class="btn" onclick="playAgain()">Play Again</button>
     </div>
-    
     <div class="lose-screen" id="lose-screen">
         <h2>💔 Wrong!</h2>
         <p>That was <span id="correct-name"></span></p>
         <button class="btn" onclick="tryAgain()">Try Again</button>
     </div>
-
     <script>
         const JAZZ_CHORDS = [
-            { name: "Cmaj7", notes: [60, 64, 67, 71] },
-            { name: "Cm7", notes: [60, 63, 67, 70] },
-            { name: "C7", notes: [60, 64, 67, 70] },
-            { name: "Dmaj7", notes: [62, 66, 69, 73] },
-            { name: "Dm7", notes: [62, 65, 69, 72] },
-            { name: "D7", notes: [62, 66, 69, 72] },
-            { name: "Ebmaj7", notes: [63, 67, 70, 74] },
-            { name: "Ebm7", notes: [63, 66, 70, 73] },
-            { name: "Eb7", notes: [63, 67, 70, 73] },
-            { name: "Emaj7", notes: [64, 68, 71, 75] },
-            { name: "Em7", notes: [64, 67, 71, 74] },
-            { name: "E7", notes: [64, 68, 71, 74] },
-            { name: "Fmaj7", notes: [65, 69, 72, 76] },
-            { name: "Fm7", notes: [65, 68, 72, 75] },
-            { name: "F7", notes: [65, 69, 72, 75] },
-            { name: "Gmaj7", notes: [67, 71, 74, 78] },
-            { name: "Gm7", notes: [67, 70, 74, 77] },
-            { name: "G7", notes: [67, 71, 74, 77] },
-            { name: "Amaj7", notes: [69, 73, 76, 80] },
-            { name: "Am7", notes: [69, 72, 76, 79] },
-            { name: "A7", notes: [69, 73, 76, 79] },
-            { name: "Bbmaj7", notes: [70, 74, 77, 81] },
-            { name: "Bbm7", notes: [70, 73, 77, 80] },
-            { name: "Bb7", notes: [70, 74, 77, 80] },
-            { name: "Bm7", notes: [71, 74, 78, 81] },
-            { name: "B7", notes: [71, 75, 78, 81] },
+            { name: "C", notes: [60, 64, 67] }, { name: "Dm", notes: [62, 65, 69] }, { name: "Em", notes: [64, 67, 71] },
+            { name: "F", notes: [65, 69, 72] }, { name: "G", notes: [67, 71, 74] }, { name: "Am", notes: [69, 72, 76] }, { name: "Bdim", notes: [71, 74, 77] },
+            { name: "Cm", notes: [60, 63, 67] }, { name: "Dm", notes: [62, 65, 69] }, { name: "Em", notes: [64, 67, 71] },
+            { name: "Fm", notes: [65, 68, 72] }, { name: "Gm", notes: [67, 70, 74] }, { name: "Am", notes: [69, 72, 76] },
+            { name: "C7", notes: [60, 64, 67, 70] }, { name: "D7", notes: [62, 66, 69, 72] }, { name: "E7", notes: [64, 68, 71, 74] },
+            { name: "F7", notes: [65, 69, 72, 75] }, { name: "G7", notes: [67, 71, 74, 77] }, { name: "A7", notes: [69, 73, 76, 79] },
+            { name: "Cmaj7", notes: [60, 64, 67, 71] }, { name: "Dmaj7", notes: [62, 66, 69, 73] }, { name: "Emaj7", notes: [64, 68, 71, 75] },
+            { name: "Fmaj7", notes: [65, 69, 72, 76] }, { name: "Gmaj7", notes: [67, 71, 74, 78] }, { name: "Amaj7", notes: [69, 73, 76, 80] },
+            { name: "Cm7", notes: [60, 63, 67, 70] }, { name: "Dm7", notes: [62, 65, 69, 72] }, { name: "Em7", notes: [64, 67, 71, 74] },
+            { name: "Fm7", notes: [65, 68, 72, 75] }, { name: "Gm7", notes: [67, 70, 74, 77] }, { name: "Am7", notes: [69, 72, 76, 79] },
         ];
-        
-        // Staff: lines at 30, 50, 70, 90, 110 (middle = 70)
-        const MIDDLE_Y = 70;
-        const LINE_SPACE = 10;
-        
-        // Note to staff position (0 = middle line)
-        const noteOffsets = {
-            'C': -6, 'C#': -6, 'D': -5, 'D#': -5, 'E': -4, 'F': -3, 'F#': -3, 'G': -2, 'G#': -2, 'A': -1, 'A#': -1, 'B': 0
-        };
-        
-        function midiToPosition(midi) {
-            const noteNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-            const note = midi % 12;
-            const octave = Math.floor(midi / 12);
-            return (octave - 5) * 7 + noteOffsets[noteNames[note]];
+        const MIDDLE_Y = 70, LINE_SPACE = 10;
+        function midiToY(midi) {
+            const offsets = {0:-6, 2:-5, 4:-4, 5:-3, 7:-2, 9:-1, 11:0};
+            const note = midi % 12, octave = Math.floor(midi / 12), offset = offsets[note] !== undefined ? offsets[note] : 0;
+            return MIDDLE_Y - ((octave - 4) * 7 + offset) * (LINE_SPACE / 2);
         }
-        
         let streak = 0, best = 0, currentChord = null, gameActive = true;
-        
         function displayChord(chord) {
-            const area = document.getElementById('notes-area');
+            const area = document.getElementById('chord-area');
             area.innerHTML = '';
-            
             const notes = [...chord.notes].sort((a,b) => a - b);
-            
-            // Spread horizontally across the staff
-            const totalWidth = area.offsetWidth || 250;
-            const startX = 20;
-            const spacing = Math.min(55, (totalWidth - 40) / Math.max(notes.length, 2));
-            
-            notes.forEach((midi, i) => {
-                const pos = midiToPosition(midi);
-                const y = MIDDLE_Y - pos * (LINE_SPACE / 2);
-                
-                // Note symbol
+            const chordDiv = document.createElement('div');
+            chordDiv.className = 'chord';
+            notes.forEach(midi => {
+                const col = document.createElement('div');
+                col.className = 'note-col';
+                const y = midiToY(midi);
+                if (y < 35) { for (let ly = 30; ly >= y; ly -= 10) { const l = document.createElement('div'); l.className = 'ledger'; l.style.top = (ly - 3) + 'px'; col.appendChild(l); } }
+                if (y > 115) { for (let ly = 110; ly <= y; ly += 10) { const l = document.createElement('div'); l.className = 'ledger'; l.style.top = (ly - 3) + 'px'; col.appendChild(l); } }
                 const noteEl = document.createElement('div');
-                noteEl.className = 'note';
-                noteEl.textContent = '♫';
-                noteEl.style.left = (startX + i * spacing) + 'px';
-                noteEl.style.top = (y - 16) + 'px';
-                area.appendChild(noteEl);
-                
-                // Ledger lines above staff
-                if (pos < -4) {
-                    for (let p = 0; p > pos + 4; p--) {
-                        const ledger = document.createElement('div');
-                        ledger.className = 'ledger';
-                        ledger.style.left = (startX + i * spacing) + 'px';
-                        ledger.style.top = (MIDDLE_Y - (p + 4) * (LINE_SPACE/2)) + 'px';
-                        area.appendChild(ledger);
-                    }
-                }
-                
-                // Ledger lines below staff
-                if (pos > 4) {
-                    for (let p = 0; p < pos - 4; p++) {
-                        const ledger = document.createElement('div');
-                        ledger.className = 'ledger';
-                        ledger.style.left = (startX + i * spacing) + 'px';
-                        ledger.style.top = (MIDDLE_Y + (p + 1) * (LINE_SPACE/2)) + 'px';
-                        area.appendChild(ledger);
-                    }
-                }
+                noteEl.className = 'whole-note';
+                noteEl.textContent = '𝅝';
+                noteEl.style.top = (y - 20) + 'px';
+                col.appendChild(noteEl);
+                chordDiv.appendChild(col);
             });
+            area.appendChild(chordDiv);
         }
-        
         function generateOptions(correct) {
             let opts = [correct];
             let others = JAZZ_CHORDS.filter(c => c.name !== correct.name);
@@ -369,7 +125,6 @@
             opts.sort(() => Math.random() - 0.5);
             return opts;
         }
-        
         function displayOptions(opts) {
             const container = document.getElementById('options');
             container.innerHTML = '';
@@ -381,7 +136,6 @@
                 container.appendChild(btn);
             });
         }
-        
         function checkAnswer(selected) {
             if (!gameActive) return;
             const correct = selected.name === currentChord.name;
@@ -390,7 +144,6 @@
                 if (opt.textContent === currentChord.name) opt.classList.add('correct');
                 else if (opt.textContent === selected.name && !correct) opt.classList.add('wrong');
             });
-            
             const fb = document.getElementById('feedback');
             if (correct) {
                 streak++; if (streak > best) best = streak;
@@ -403,28 +156,23 @@
                 document.getElementById('correct-name').textContent = currentChord.name;
                 setTimeout(() => { document.getElementById('lose-screen').classList.add('show'); }, 500); return;
             }
-            
             fb.classList.add('show');
             setTimeout(() => fb.classList.remove('show'), 600);
             updateUI();
             setTimeout(newChord, 800);
         }
-        
         function newChord() {
             currentChord = JAZZ_CHORDS[Math.floor(Math.random() * JAZZ_CHORDS.length)];
             displayChord(currentChord);
             displayOptions(generateOptions(currentChord));
         }
-        
         function updateUI() {
             document.getElementById('streak').textContent = streak;
             document.getElementById('best').textContent = best;
             document.getElementById('progress').style.width = (streak * 10) + '%';
         }
-        
         function playAgain() { document.getElementById('win-screen').classList.remove('show'); streak = 0; gameActive = true; updateUI(); newChord(); }
         function tryAgain() { document.getElementById('lose-screen').classList.remove('show'); streak = 0; gameActive = true; updateUI(); newChord(); }
-        
         newChord();
     </script>
 </body>
