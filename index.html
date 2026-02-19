@@ -18,14 +18,8 @@
         .progress-bar { width: 100%; height: 6px; background: #333; border-radius: 3px; margin: 10px 0; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
         .staff-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
-        .staff { width: 100%; height: 200px; position: relative; background: #0a0a14; border-radius: 8px; border: 1px solid #333; }
-        .staff-line { position: absolute; width: 92%; left: 4%; height: 2px; background: var(--cream); opacity: 0.9; }
-        .clef { position: absolute; left: 5px; font-size: 100px; color: var(--gold); font-family: serif; top: 95px; line-height: 1; z-index: 1; }
-        .chord-area { position: absolute; left: 90px; right: 20px; top: 10px; bottom: 10px; display: flex; gap: 35px; justify-content: flex-start; align-items: center; }
-        .chord-col { position: relative; width: 25px; height: 180px; }
-        .notehead { position: absolute; width: 18px; height: 12px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 8px rgba(212, 175, 55, 0.6); }
-        .ledger { position: absolute; width: 28px; height: 2px; background: var(--cream); opacity: 0.8; left: 50%; transform: translateX(-50%); }
-        .accidental { position: absolute; font-size: 26px; color: var(--gold); left: -20px; font-weight: bold; }
+        .staff { width: 100%; height: 150px; position: relative; background: #0a0a14; border-radius: 8px; border: 1px solid #333; }
+        .staff svg { width: 100%; height: 100%; }
         .options { display: grid; gap: 10px; margin-top: 15px; }
         .option { background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%); border: 2px solid #3a3a5a; border-radius: 10px; padding: 14px; font-size: 1.1rem; color: var(--cream); cursor: pointer; font-weight: 600; }
         .option.correct { background: linear-gradient(135deg, #1e5631, #27ae60); border-color: var(--green); }
@@ -53,13 +47,18 @@
         <div class="progress-bar"><div class="progress-fill" id="progress" style="width: 0%"></div></div>
         <div class="staff-container">
             <div class="staff" id="staff">
-                <div class="staff-line" style="top: 60px"></div>
-                <div class="staff-line" style="top: 80px"></div>
-                <div class="staff-line" style="top: 100px"></div>
-                <div class="staff-line" style="top: 120px"></div>
-                <div class="staff-line" style="top: 140px"></div>
-                <div class="clef">𝄞</div>
-                <div class="chord-area" id="chord-area"></div>
+                <svg id="staff-svg" viewBox="0 0 400 150">
+                    <!-- Staff lines -->
+                    <line x1="30" y1="50" x2="380" y2="50" stroke="#faf8f0" stroke-width="1.5"/>
+                    <line x1="30" y1="70" x2="380" y2="70" stroke="#faf8f0" stroke-width="1.5"/>
+                    <line x1="30" y1="90" x2="380" y2="90" stroke="#faf8f0" stroke-width="1.5"/>
+                    <line x1="30" y1="110" x2="380" y2="110" stroke="#faf8f0" stroke-width="1.5"/>
+                    <line x1="30" y1="130" x2="380" y2="130" stroke="#faf8f0" stroke-width="1.5"/>
+                    <!-- Treble clef -->
+                    <text x="10" y="115" font-family="serif" font-size="100" fill="#d4af37">𝄞</text>
+                    <!-- Notes will be drawn here -->
+                    <g id="notes"></g>
+                </svg>
             </div>
         </div>
         <div class="message" id="message">Name the chord!</div>
@@ -93,35 +92,25 @@
             { name: "Bb7", notes: [70, 73, 77, 80] },
         ];
         
-        // Staff lines at 60, 80, 100, 120, 140 (top to bottom in CSS, but visual: bottom=140)
-        // Bottom line (E4, MIDI 64) = 140
-        // Second line (G4, MIDI 67) = 120
-        // Middle line (B4, MIDI 71) = 100
+        // Staff lines at y=50,70,90,110,130 (bottom to top)
+        // Bottom line (E4) = 130
+        // G4 = 110
+        // B4 = 90
+        // D5 = 70
+        // F5 = 50
+        
+        // Each line/space = 10 units, so each half step = 5 units
+        // E4(64) = 130, F4(65) = 125, F#4(126) = 120, G4(67) = 115, G#4(68) = 110...
         
         function midiToY(midi) {
-            // Staff lines (bottom to top): 140, 120, 100, 80, 60
-            // Ledger below: C4 = 150
-            const positions = {
-                60: 150, // C4 - ledger
-                61: 147, // C#4
-                62: 145, // D4
-                63: 142, // D#4
-                64: 140, // E4 - bottom line
-                65: 130, // F4
-                66: 127, // F#4
-                67: 120, // G4 - second line
-                68: 117, // G#4
-                69: 110, // A4
-                70: 107, // Bb4
-                71: 100, // B4 - middle line
-                72: 90,  // C5
-                73: 87,  // C#5
-                74: 80,  // D5
-                75: 77,  // D#5
-                76: 70,  // E5
-                77: 60,  // F5 - top line
-            };
-            return positions[midi] || 100;
+            // E4 = 130 (bottom line)
+            // Each half step = 5 units up
+            return 130 - (midi - 64) * 5;
+        }
+        
+        function getNoteName(midi) {
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            return notes[midi % 12];
         }
         
         function hasFlat(chordName) {
@@ -131,59 +120,69 @@
         let streak = 0, best = 0, currentChord = null, gameActive = true;
         
         function displayChord(chord) {
-            const area = document.getElementById('chord-area');
-            area.innerHTML = '';
+            const notesGroup = document.getElementById('notes');
+            notesGroup.innerHTML = '';
             
             const notes = [...chord.notes].sort((a,b) => a - b);
-            
             const hasFlatNote = hasFlat(chord.name);
             
-            // Create separate column for each note so they spread horizontally
-            notes.forEach(midi => {
-                const col = document.createElement('div');
-                col.className = 'chord-col';
-                
+            // Calculate spacing to center the chord
+            const startX = 180;
+            const noteSpacing = 35;
+            
+            notes.forEach((midi, i) => {
+                const x = startX + i * noteSpacing;
                 const y = midiToY(midi);
                 
-                // Ledger lines below staff (below bottom line at 140)
-                if (y > 140) {
-                    const numLines = Math.ceil((y - 140) / 10) + 1;
-                    for (let i = 0; i < numLines; i++) {
-                        const ledger = document.createElement('div');
-                        ledger.className = 'ledger';
-                        ledger.style.top = (140 + i * 10 - 1) + 'px';
-                        col.appendChild(ledger);
+                // Draw ledger lines if needed
+                if (y > 130) {
+                    // Below staff
+                    for (let ly = 140; ly <= y + 5; ly += 10) {
+                        const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        ledger.setAttribute('x1', x - 12);
+                        ledger.setAttribute('x2', x + 12);
+                        ledger.setAttribute('y1', ly);
+                        ledger.setAttribute('y2', ly);
+                        ledger.setAttribute('stroke', '#faf8f0');
+                        ledger.setAttribute('stroke-width', '1.5');
+                        notesGroup.appendChild(ledger);
+                    }
+                }
+                if (y < 50) {
+                    // Above staff
+                    for (let ly = 40; ly >= y - 5; ly -= 10) {
+                        const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        ledger.setAttribute('x1', x - 12);
+                        ledger.setAttribute('x2', x + 12);
+                        ledger.setAttribute('y1', ly);
+                        ledger.setAttribute('y2', ly);
+                        ledger.setAttribute('stroke', '#faf8f0');
+                        ledger.setAttribute('stroke-width', '1.5');
+                        notesGroup.appendChild(ledger);
                     }
                 }
                 
-                // Ledger lines above staff (above top line at 60)
-                if (y < 60) {
-                    const numLines = Math.ceil((60 - y) / 10) + 1;
-                    for (let i = 0; i < numLines; i++) {
-                        const ledger = document.createElement('div');
-                        ledger.className = 'ledger';
-                        ledger.style.top = (60 - i * 10 - 1) + 'px';
-                        col.appendChild(ledger);
-                    }
-                }
-                
-                // Notehead
-                const noteEl = document.createElement('div');
-                noteEl.className = 'notehead';
-                noteEl.style.top = (y - 6) + 'px';
-                noteEl.style.left = '6px';
-                col.appendChild(noteEl);
-                
-                // Flat accidental
+                // Draw flat if needed
                 if (hasFlatNote && midi === notes[0]) {
-                    const acc = document.createElement('div');
-                    acc.className = 'accidental';
-                    acc.textContent = 'b';
-                    acc.style.top = (y - 13) + 'px';
-                    col.appendChild(acc);
+                    const flat = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    flat.setAttribute('x', x - 22);
+                    flat.setAttribute('y', y + 5);
+                    flat.setAttribute('fill', '#d4af37');
+                    flat.setAttribute('font-size', '24');
+                    flat.setAttribute('font-weight', 'bold');
+                    flat.textContent = '♭';
+                    notesGroup.appendChild(flat);
                 }
                 
-                area.appendChild(col);
+                // Draw notehead (ellipse)
+                const notehead = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                notehead.setAttribute('cx', x);
+                notehead.setAttribute('cy', y);
+                notehead.setAttribute('rx', '8');
+                notehead.setAttribute('ry', '6');
+                notehead.setAttribute('fill', '#d4af37');
+                notehead.setAttribute('transform', `rotate(-15 ${x} ${y})`);
+                notesGroup.appendChild(notehead);
             });
         }
         
