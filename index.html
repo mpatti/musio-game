@@ -143,9 +143,9 @@
             const notes = [...chord.notes].sort((a,b) => a - b);
             const hasFlatNote = hasFlat(chord.name);
             
-            // Calculate spacing to center the chord
-            const startX = 180;
-            const noteSpacing = 35;
+            // Calculate spacing to center the chord - spread horizontally
+            const startX = 150;
+            const noteSpacing = 50;
             
             notes.forEach((midi, i) => {
                 const x = startX + i * noteSpacing;
@@ -202,12 +202,12 @@
                     notesGroup.appendChild(flat);
                 }
                 
-                // Draw notehead (ellipse)
+                // Draw notehead (ellipse - smaller)
                 const notehead = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
                 notehead.setAttribute('cx', x);
                 notehead.setAttribute('cy', y);
-                notehead.setAttribute('rx', '8');
-                notehead.setAttribute('ry', '6');
+                notehead.setAttribute('rx', '6');
+                notehead.setAttribute('ry', '5');
                 notehead.setAttribute('fill', '#d4af37');
                 notehead.setAttribute('transform', `rotate(-15 ${x} ${y})`);
                 notesGroup.appendChild(notehead);
