@@ -21,7 +21,7 @@
         .staff { width: 100%; height: 200px; position: relative; background: #0a0a14; border-radius: 8px; border: 1px solid #333; }
         .staff-line { position: absolute; width: 92%; left: 4%; height: 2px; background: var(--cream); opacity: 0.9; }
         .clef { position: absolute; left: 5px; font-size: 100px; color: var(--gold); font-family: serif; top: 95px; line-height: 1; z-index: 1; }
-        .chord-area { position: absolute; left: 80px; right: 20px; top: 10px; bottom: 10px; display: flex; gap: 25px; justify-content: center; align-items: center; }
+        .chord-area { position: absolute; left: 90px; right: 20px; top: 10px; bottom: 10px; display: flex; gap: 35px; justify-content: flex-start; align-items: center; }
         .chord-col { position: relative; width: 25px; height: 180px; }
         .notehead { position: absolute; width: 18px; height: 12px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 8px rgba(212, 175, 55, 0.6); }
         .ledger { position: absolute; width: 28px; height: 2px; background: var(--cream); opacity: 0.8; left: 50%; transform: translateX(-50%); }
@@ -136,12 +136,13 @@
             
             const notes = [...chord.notes].sort((a,b) => a - b);
             
-            const col = document.createElement('div');
-            col.className = 'chord-col';
-            
             const hasFlatNote = hasFlat(chord.name);
             
+            // Create separate column for each note so they spread horizontally
             notes.forEach(midi => {
+                const col = document.createElement('div');
+                col.className = 'chord-col';
+                
                 const y = midiToY(midi);
                 
                 // Ledger lines below staff (below bottom line at 140)
@@ -181,9 +182,9 @@
                     acc.style.top = (y - 13) + 'px';
                     col.appendChild(acc);
                 }
+                
+                area.appendChild(col);
             });
-            
-            area.appendChild(col);
         }
         
         function generateOptions(correct) {
