@@ -101,28 +101,11 @@
         // Natural notes: C=140(ledger), D=135, E=130(line), F=125, G=120, A=115, B=110, C=105, D=100, E=95, F=90
         
         function midiToY(midi) {
-            // Proper treble clef positions (bottom line E=130):
-            const positions = {
-                60: 150, // C4 - ledger below
-                61: 147, // C#4
-                62: 145, // D4
-                63: 142, // D#4
-                64: 130, // E4 - bottom line
-                65: 125, // F4
-                66: 122, // F#4
-                67: 110, // G4 - second line
-                68: 105, // G#4
-                69: 100, // A4
-                70: 95,  // Bb4
-                71: 90,  // B4 - middle line
-                72: 85,  // C5
-                73: 82,  // C#5
-                74: 70,  // D5
-                75: 67,  // D#5
-                76: 60,  // E5
-                77: 50,  // F5 - top line
-            };
-            return positions[midi] || 90;
+            // Proper treble clef positions (bottom line E4=130, top line F5=50)
+            // Each octave = 60 units (12 notes × 5 line spaces), each half-step = 5 units
+            // Middle line B4 = 90, E5 = 60, C5 = 85
+            const baseY = 130 - ((midi - 64) * 5); // E4 (64) = 130
+            return baseY;
         }
         
         function getNoteName(midi) {
