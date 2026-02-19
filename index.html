@@ -22,10 +22,10 @@
         .staff-line { position: absolute; width: 92%; left: 4%; height: 1px; background: var(--cream); opacity: 0.7; }
         .clef { position: absolute; left: 8px; font-size: 70px; color: var(--gold); font-family: serif; top: 50%; transform: translateY(-55%); line-height: 1; }
         .chord-area { position: absolute; left: 70px; right: 20px; top: 0; bottom: 0; display: flex; justify-content: center; align-items: center; }
-        .chord { display: flex; align-items: center; gap: 8px; }
-        .note-col { position: relative; width: 20px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .whole-note { font-size: 40px; color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); line-height: 1; position: absolute; }
+        .chord-col { position: relative; width: 30px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .whole-note { font-size: 38px; color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); line-height: 1; position: absolute; }
         .ledger { position: absolute; width: 26px; height: 1px; background: var(--cream); opacity: 0.7; left: 50%; transform: translateX(-50%); }
+        .accidental { position: absolute; font-size: 28px; color: var(--gold); left: -18px; font-weight: bold; }
         .options { display: grid; gap: 10px; margin-top: 15px; }
         .option { background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%); border: 2px solid #3a3a5a; border-radius: 10px; padding: 14px; font-size: 1.1rem; color: var(--cream); cursor: pointer; font-weight: 600; }
         .option.correct { background: linear-gradient(135deg, #1e5631, #27ae60); border-color: var(--green); }
@@ -84,39 +84,85 @@
             { name: "Fm", notes: [65, 68, 72] }, { name: "Gm", notes: [67, 70, 74] }, { name: "Am", notes: [69, 72, 76] },
             { name: "C7", notes: [60, 64, 67, 70] }, { name: "D7", notes: [62, 66, 69, 72] }, { name: "E7", notes: [64, 68, 71, 74] },
             { name: "F7", notes: [65, 69, 72, 75] }, { name: "G7", notes: [67, 71, 74, 77] }, { name: "A7", notes: [69, 73, 76, 79] },
+            { name: "Bb7", notes: [70, 74, 77, 80] },
             { name: "Cmaj7", notes: [60, 64, 67, 71] }, { name: "Dmaj7", notes: [62, 66, 69, 73] }, { name: "Emaj7", notes: [64, 68, 71, 75] },
             { name: "Fmaj7", notes: [65, 69, 72, 76] }, { name: "Gmaj7", notes: [67, 71, 74, 78] }, { name: "Amaj7", notes: [69, 73, 76, 80] },
+            { name: "Bbmaj7", notes: [70, 74, 77, 81] },
             { name: "Cm7", notes: [60, 63, 67, 70] }, { name: "Dm7", notes: [62, 65, 69, 72] }, { name: "Em7", notes: [64, 67, 71, 74] },
             { name: "Fm7", notes: [65, 68, 72, 75] }, { name: "Gm7", notes: [67, 70, 74, 77] }, { name: "Am7", notes: [69, 72, 76, 79] },
+            { name: "Bb7", notes: [70, 73, 77, 80] },
         ];
+        
         const MIDDLE_Y = 70, LINE_SPACE = 10;
+        
         function midiToY(midi) {
-            const offsets = {0:-6, 2:-5, 4:-4, 5:-3, 7:-2, 9:-1, 11:0};
-            const note = midi % 12, octave = Math.floor(midi / 12), offset = offsets[note] !== undefined ? offsets[note] : 0;
+            const offsets = {0:-6, 1:-6.5, 2:-5, 3:-4.5, 4:-4, 5:-3, 6:-2.5, 7:-2, 8:-1.5, 9:-1, 10:-0.5, 11:0};
+            const note = midi % 12, octave = Math.floor(midi / 12), offset = offsets[note];
             return MIDDLE_Y - ((octave - 4) * 7 + offset) * (LINE_SPACE / 2);
         }
+        
+        function hasAccidental(chordName) {
+            return chordName.includes('b') || chordName.includes('Bb');
+        }
+        
         let streak = 0, best = 0, currentChord = null, gameActive = true;
+        
         function displayChord(chord) {
             const area = document.getElementById('chord-area');
             area.innerHTML = '';
+            
+            // Sort notes low to high
             const notes = [...chord.notes].sort((a,b) => a - b);
-            const chordDiv = document.createElement('div');
-            chordDiv.className = 'chord';
+            
+            // Create SINGLE column for all notes
+            const col = document.createElement('div');
+            col.className = 'chord-col';
+            
+            // Check if this chord has a flat
+            const hasFlat = hasAccidental(chord.name);
+            
             notes.forEach(midi => {
-                const col = document.createElement('div');
-                col.className = 'note-col';
                 const y = midiToY(midi);
-                if (y < 35) { for (let ly = 30; ly >= y; ly -= 10) { const l = document.createElement('div'); l.className = 'ledger'; l.style.top = (ly - 3) + 'px'; col.appendChild(l); } }
-                if (y > 115) { for (let ly = 110; ly <= y; ly += 10) { const l = document.createElement('div'); l.className = 'ledger'; l.style.top = (ly - 3) + 'px'; col.appendChild(l); } }
+                
+                // Ledger lines below staff
+                if (y < 35) {
+                    for (let ly = 30; ly >= y - 5; ly -= 10) {
+                        const ledger = document.createElement('div');
+                        ledger.className = 'ledger';
+                        ledger.style.top = (ly - 3) + 'px';
+                        col.appendChild(ledger);
+                    }
+                }
+                // Ledger lines above staff
+                if (y > 115) {
+                    for (let ly = 110; ly <= y + 5; ly += 10) {
+                        const ledger = document.createElement('div');
+                        ledger.className = 'ledger';
+                        ledger.style.top = (ly - 3) + 'px';
+                        col.appendChild(ledger);
+                    }
+                }
+                
+                // Whole note
                 const noteEl = document.createElement('div');
                 noteEl.className = 'whole-note';
                 noteEl.textContent = '𝅝';
-                noteEl.style.top = (y - 20) + 'px';
+                noteEl.style.top = (y - 19) + 'px';
                 col.appendChild(noteEl);
-                chordDiv.appendChild(col);
+                
+                // Add flat accidental to lowest note if chord has flat
+                if (hasFlat && midi === notes[0]) {
+                    const acc = document.createElement('div');
+                    acc.className = 'accidental';
+                    acc.textContent = '♭';
+                    acc.style.top = (y - 14) + 'px';
+                    col.appendChild(acc);
+                }
             });
-            area.appendChild(chordDiv);
+            
+            area.appendChild(col);
         }
+        
         function generateOptions(correct) {
             let opts = [correct];
             let others = JAZZ_CHORDS.filter(c => c.name !== correct.name);
@@ -125,6 +171,7 @@
             opts.sort(() => Math.random() - 0.5);
             return opts;
         }
+        
         function displayOptions(opts) {
             const container = document.getElementById('options');
             container.innerHTML = '';
@@ -136,6 +183,7 @@
                 container.appendChild(btn);
             });
         }
+        
         function checkAnswer(selected) {
             if (!gameActive) return;
             const correct = selected.name === currentChord.name;
@@ -161,18 +209,22 @@
             updateUI();
             setTimeout(newChord, 800);
         }
+        
         function newChord() {
             currentChord = JAZZ_CHORDS[Math.floor(Math.random() * JAZZ_CHORDS.length)];
             displayChord(currentChord);
             displayOptions(generateOptions(currentChord));
         }
+        
         function updateUI() {
             document.getElementById('streak').textContent = streak;
             document.getElementById('best').textContent = best;
             document.getElementById('progress').style.width = (streak * 10) + '%';
         }
+        
         function playAgain() { document.getElementById('win-screen').classList.remove('show'); streak = 0; gameActive = true; updateUI(); newChord(); }
         function tryAgain() { document.getElementById('lose-screen').classList.remove('show'); streak = 0; gameActive = true; updateUI(); newChord(); }
+        
         newChord();
     </script>
 </body>
