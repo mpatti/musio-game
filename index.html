@@ -140,20 +140,29 @@
             const notesGroup = document.getElementById('notes');
             notesGroup.innerHTML = '';
             
+            // Sort notes by pitch (lowest to highest for stacking)
             const notes = [...chord.notes].sort((a,b) => a - b);
             const hasFlatNote = hasFlat(chord.name);
             
-            // Calculate spacing to center the chord - spread horizontally
-            const startX = 150;
-            const noteSpacing = 50;
+            // Center X position for the chord
+            const chordX = 200;
+            
+            // Calculate vertical offset to center the chord on the staff
+            // Staff center is around y=90 (middle line = B4)
+            const noteHeights = notes.map(midi => midiToY(midi));
+            const minY = Math.min(...noteHeights);
+            const maxY = Math.max(...noteHeights);
+            const chordHeight = maxY - minY;
+            const staffCenter = 90;
+            const chordCenter = (maxY + minY) / 2;
+            const yOffset = staffCenter - chordCenter;
             
             notes.forEach((midi, i) => {
-                const x = startX + i * noteSpacing;
-                const y = midiToY(midi);
+                const x = chordX;
+                const y = midiToY(midi) + yOffset;
                 
                 // Draw ledger lines if needed
                 if (y > 130) {
-                    // Below staff - ledger lines at 140, 150...
                     for (let ly = 140; ly <= y + 5; ly += 10) {
                         const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                         ledger.setAttribute('x1', x - 12);
@@ -166,18 +175,6 @@
                     }
                 }
                 if (y < 50) {
-                    // Above staff - ledger lines at 40, 30, 20...
-                    for (let ly = 40; ly >= y - 5; ly -= 10) {
-                        const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        ledger.setAttribute('x1', x - 12);
-                        ledger.setAttribute('x2', x + 12);
-                        ledger.setAttribute('y1', ly);
-                        ledger.setAttribute('y2', ly);
-                        ledger.setAttribute('stroke', '#faf8f0');
-                        ledger.setAttribute('stroke-width', '1.5');
-                        notesGroup.appendChild(ledger);
-                    }
-                }
                     for (let ly = 40; ly >= y - 5; ly -= 10) {
                         const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                         ledger.setAttribute('x1', x - 12);
@@ -202,7 +199,7 @@
                     notesGroup.appendChild(flat);
                 }
                 
-                // Draw notehead (ellipse - smaller)
+                // Draw notehead
                 const notehead = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
                 notehead.setAttribute('cx', x);
                 notehead.setAttribute('cy', y);
@@ -211,7 +208,40 @@
                 notehead.setAttribute('fill', '#d4af37');
                 notehead.setAttribute('transform', `rotate(-15 ${x} ${y})`);
                 notesGroup.appendChild(notehead);
+                
+                // Draw stem (up for notes on middle line and above, down for below)
+                const stemX = x + 6;
+                const stemLength = 35;
+                const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                if (y <= 90) {
+                    // Stem up
+                    stem.setAttribute('x1', stemX);
+                    stem.setAttribute('y1', y);
+                    stem.setAttribute('x2', stemX);
+                    stem.setAttribute('y2', y - stemLength);
+                } else {
+                    // Stem down
+                    stem.setAttribute('x1', x - 6);
+                    stem.setAttribute('y1', y);
+                    stem.setAttribute('x2', x - 6);
+                    stem.setAttribute('y2', y + stemLength);
+                }
+                stem.setAttribute('stroke', '#d4af37');
+                stem.setAttribute('stroke-width', '1.5');
+                notesGroup.appendChild(stem);
             });
+            
+            // Draw chord symbol above staff
+            const symbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            symbol.setAttribute('x', chordX);
+            symbol.setAttribute('y', 35);
+            symbol.setAttribute('text-anchor', 'middle');
+            symbol.setAttribute('fill', '#d4af37');
+            symbol.setAttribute('font-size', '28');
+            symbol.setAttribute('font-weight', 'bold');
+            symbol.setAttribute('font-family', 'serif');
+            symbol.textContent = chord.name;
+            notesGroup.appendChild(symbol);
         }
         
         function generateOptions(correct) {
