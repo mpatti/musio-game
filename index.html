@@ -93,77 +93,36 @@
             { name: "Bb7", notes: [70, 73, 77, 80] },
         ];
         
-        // Staff lines at: 30, 50, 70, 90, 110 (from top to bottom)
-        // Middle line = 70 (B4)
-        // Bottom line = 110 (E4)
-        // Ledger line for Middle C = 125
+        // CORRECT positions: Staff lines at 30, 50, 70, 90, 110 (top to bottom)
+        // Bottom line (E4) = 110
+        // Second line (G4) = 90
+        // Middle line (B4) = 70
+        // Ledger line (C4) = 120
         
         function midiToY(midi) {
-            // Correct positions based on staff lines
-            const staffPositions = {
-                // Octave 4 (Middle C octave)
-                60: 125, // C4 - ledger line below
-                61: 122.5, // C#4
-                62: 120, // D4
-                63: 117.5, // D#4
-                64: 115, // E4 - bottom line (110) + half step = 115 center
-                65: 112.5, // F4
-                66: 110, // F#4
-                67: 107.5, // G4
-                68: 105, // G#4
-                69: 102.5, // A4
-                70: 100, // Bb4
-                71: 97.5, // B4 - middle line (70) but wait...
-                
-                // Let me recalculate. Staff lines:
-                // Top line: 30
-                // Line 4: 50  
-                // Middle line: 70
-                // Line 2: 90
-                // Bottom line: 110
-                // Ledger below: 125
-            };
-            
-            // Each staff position (line or space) = 10px
-            // Bottom line (E4) = 110
-            // Space below bottom line = 115
-            // Ledger line (C4) = 120
-            // Space below ledger = 125
-            
-            // So working from bottom:
-            // E4 (64) = line at 110, note centered at 110
-            // D4 (62) = space at 105
-            // C4 (60) = ledger line at 120
-            // etc.
-            
-            // Actually - in standard notation, the line IS where the notehead center goes
-            // Bottom line (E4): 110
-            // Space below (D4): 105  
-            // Ledger (C4): 120
-            
             const positions = {
                 60: 120, // C4 - ledger line
-                61: 117.5,
+                61: 117,
                 62: 115, // D4
-                63: 112.5,
+                63: 112,
                 64: 110, // E4 - bottom line
-                65: 107.5,
+                65: 107,
                 66: 105, // F4
-                67: 102.5,
+                67: 102,
                 68: 100, // G4
-                69: 97.5,
+                69: 97,
                 70: 95, // A4
-                71: 92.5,
+                71: 92,
                 72: 90, // B4 - middle line
-                73: 87.5,
+                73: 87,
                 74: 85, // C5
-                75: 82.5,
+                75: 82,
                 76: 80, // D5
-                77: 77.5,
+                77: 77,
                 78: 75, // E5
-                79: 72.5,
+                79: 72,
                 80: 70, // F5
-                81: 67.5,
+                81: 67,
             };
             return positions[midi] || 90;
         }
@@ -188,9 +147,8 @@
             notes.forEach(midi => {
                 const y = midiToY(midi);
                 
-                // Ledger lines - draw from staff boundary inward
-                if (y >= 110) {
-                    // Below staff - draw lines going down from 110
+                // Ledger lines below staff
+                if (y > 110) {
                     const numLines = Math.ceil((y - 110) / 10) + 1;
                     for (let i = 0; i < numLines; i++) {
                         const ledger = document.createElement('div');
@@ -200,8 +158,8 @@
                     }
                 }
                 
-                if (y <= 30) {
-                    // Above staff - draw lines going up from 30
+                // Ledger lines above staff
+                if (y < 30) {
                     const numLines = Math.ceil((30 - y) / 10) + 1;
                     for (let i = 0; i < numLines; i++) {
                         const ledger = document.createElement('div');
